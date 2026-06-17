@@ -4,7 +4,16 @@ import Fuse from 'fuse.js'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useBookRecordStore } from '@/stores/bookRecord'
 import BookFormDialog from '@/components/BookFormDialog.vue'
+import ImportConfirmDialog from '@/components/ImportConfirmDialog.vue'
 import type { BookRecord, BookRecordForm } from '@/types/book'
+import {
+  exportRecords,
+  readExportFile,
+  validateImportData,
+  mergeRecords,
+  getImportStats,
+  type ImportMode,
+} from '@/utils/bookImportExport'
 
 const store = useBookRecordStore()
 
@@ -12,6 +21,12 @@ const searchKeyword = ref('')
 const priceSortOrder = ref<'asc' | 'desc' | ''>('')
 const dialogVisible = ref(false)
 const editingRecord = ref<BookRecord | null>(null)
+
+const importDialogVisible = ref(false)
+const importMode = ref<ImportMode>('merge')
+const pendingImportRecords = ref<BookRecord[]>([])
+const importStats = ref({ total: 0, added: 0, updated: 0, unchanged: 0 })
+const fileInputRef = ref<HTMLInputElement | null>(null)
 
 /** fuse.js 搜索实例 */
 const fuse = computed(
@@ -99,6 +114,83 @@ function conditionTagType(condition: string) {
   if (condition === '良好') return ''
   return 'warning'
 }
+
+/** 导出备份 */
+function handleExport() {
+  if (store.records.length === 0) {
+    ElMessage.warning('暂无记录可导出')
+    return
+  }
+  exportRecords(store.records)
+  ElMessage.success('导出成功')
+}
+
+/** 触发文件选择 */
+function handleImportClick() {
+  if (fileInputRef.value) {
+    fileInputRef.value.click()
+  }
+}
+
+/** 处理文件选择 */
+async function handleFileChange(event: Event) {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+
+  if (!file) return
+
+  try {
+    const data = await readExportFile(file)
+    const validation = validateImportData(data)
+
+    if (!validation.valid && validation.records.length === 0) {
+      ElMessage.error(`导入失败：${validation.errors[0]}`)
+      return
+    }
+
+    if (validation.errors.length > 0) {
+      const warningMsg = `检测到 ${validation.errors.length} 条问题，将仅导入有效记录`
+      await ElMessageBox.confirm(warningMsg, '数据校验提示', {
+        type: 'warning',
+        confirmButtonText: '继续导入',
+        cancelButtonText: '取消',
+      })
+    }
+
+    pendingImportRecords.value = validation.records
+    importStats.value = getImportStats(store.records, validation.records, importMode.value)
+    importDialogVisible.value = true
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : '导入失败')
+  } finally {
+    if (fileInputRef.value) {
+      fileInputRef.value.value = ''
+    }
+  }
+}
+
+/** 切换导入模式时更新统计 */
+function handleImportModeChange(mode: ImportMode) {
+  importMode.value = mode
+  importStats.value = getImportStats(store.records, pendingImportRecords.value, mode)
+}
+
+/** 确认导入 */
+function handleImportConfirm() {
+  if (importMode.value === 'overwrite') {
+    store.setRecords(pendingImportRecords.value)
+    ElMessage.success(`已覆盖导入 ${pendingImportRecords.value.length} 条记录`)
+  } else {
+    const merged = mergeRecords(store.records, pendingImportRecords.value)
+    store.setRecords(merged)
+    const added = importStats.value.added
+    const updated = importStats.value.updated
+    ElMessage.success(`导入成功：新增 ${added} 条，更新 ${updated} 条`)
+  }
+
+  pendingImportRecords.value = []
+  importDialogVisible.value = false
+}
 </script>
 
 <template>
@@ -114,8 +206,17 @@ function conditionTagType(condition: string) {
         <el-button :type="priceSortOrder ? 'primary' : 'default'" @click="togglePriceSort">
           {{ sortButtonText }}
         </el-button>
+        <el-button @click="handleExport">导出备份</el-button>
+        <el-button type="primary" @click="handleImportClick">导入恢复</el-button>
         <el-button type="primary" @click="openAddDialog">新增记录</el-button>
       </div>
+      <input
+        ref="fileInputRef"
+        type="file"
+        accept=".json"
+        style="display: none"
+        @change="handleFileChange"
+      />
     </div>
 
     <el-table :data="displayRecords" stripe border style="width: 100%">
@@ -149,6 +250,17 @@ function conditionTagType(condition: string) {
       v-model:visible="dialogVisible"
       :record="editingRecord"
       @submit="handleSubmit"
+    />
+
+    <ImportConfirmDialog
+      v-model:visible="importDialogVisible"
+      v-model:import-mode="importMode"
+      :total-count="importStats.total"
+      :added-count="importStats.added"
+      :updated-count="importStats.updated"
+      :unchanged-count="importStats.unchanged"
+      @update:import-mode="handleImportModeChange"
+      @confirm="handleImportConfirm"
     />
   </div>
 </template>

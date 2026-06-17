@@ -50,12 +50,21 @@ export const useBookRecordStore = defineStore(
       return records.value.find((r) => r.id === id)
     }
 
+    /**
+     * 批量设置记录（用于导入恢复）
+     * @param newRecords - 新的记录数组
+     */
+    function setRecords(newRecords: BookRecord[]) {
+      records.value = [...newRecords]
+    }
+
     return {
       records,
       addRecord,
       updateRecord,
       removeRecord,
       getRecordById,
+      setRecords,
     }
   },
   {
