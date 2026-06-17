@@ -32,5 +32,8 @@ jobs:
       - name: Type check
         run: npx vue-tsc -b
 
+      - name: Run unit tests
+        run: npm run test
+
       - name: Production build
         run: npm run build
