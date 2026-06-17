@@ -2,6 +2,15 @@ import { ref, computed, type Ref, type ComputedRef } from 'vue'
 import Fuse from 'fuse.js'
 import dayjs from 'dayjs'
 import type { BookRecord, BookCondition } from '@/types/book'
+import {
+  sortRecords,
+  toggleDateSort as toggleDateSortUtil,
+  togglePriceSort as togglePriceSortUtil,
+  getDateSortButtonText,
+  getPriceSortButtonText,
+  type DateSortOrder,
+  type PriceSortOrder,
+} from '@/utils/bookSort'
 
 export interface DateRange {
   start: string | null
@@ -12,17 +21,20 @@ export interface FilterState {
   searchKeyword: Ref<string>
   selectedCondition: Ref<BookCondition | ''>
   dateRange: Ref<DateRange>
-  priceSortOrder: Ref<'asc' | 'desc' | ''>
+  dateSortOrder: Ref<DateSortOrder>
+  priceSortOrder: Ref<PriceSortOrder>
 }
 
 export interface FilterActions {
   resetFilters: () => void
   togglePriceSort: () => void
+  toggleDateSort: () => void
 }
 
 export interface FilterComputed {
   filteredRecords: ComputedRef<BookRecord[]>
-  sortButtonText: ComputedRef<string>
+  priceSortButtonText: ComputedRef<string>
+  dateSortButtonText: ComputedRef<string>
   dateRangeValue: ComputedRef<[string, string] | null>
 }
 
@@ -32,7 +44,8 @@ export function useBookFilters(sourceRecords: Ref<BookRecord[]>): UseBookFilters
   const searchKeyword = ref('')
   const selectedCondition = ref<BookCondition | ''>('')
   const dateRange = ref<DateRange>({ start: null, end: null })
-  const priceSortOrder = ref<'asc' | 'desc' | ''>('')
+  const dateSortOrder = ref<DateSortOrder>('')
+  const priceSortOrder = ref<PriceSortOrder>('')
 
   const fuse = computed(
     () =>
@@ -66,30 +79,21 @@ export function useBookFilters(sourceRecords: Ref<BookRecord[]>): UseBookFilters
       })
     }
 
-    if (priceSortOrder.value) {
-      list.sort((a, b) =>
-        priceSortOrder.value === 'asc' ? a.price - b.price : b.price - a.price
-      )
-    }
+    list = sortRecords(list, dateSortOrder.value, priceSortOrder.value)
 
     return list
   })
 
   function togglePriceSort() {
-    if (priceSortOrder.value === '') {
-      priceSortOrder.value = 'asc'
-    } else if (priceSortOrder.value === 'asc') {
-      priceSortOrder.value = 'desc'
-    } else {
-      priceSortOrder.value = ''
-    }
+    priceSortOrder.value = togglePriceSortUtil(priceSortOrder.value)
   }
 
-  const sortButtonText = computed(() => {
-    if (priceSortOrder.value === 'asc') return '价格 ↑'
-    if (priceSortOrder.value === 'desc') return '价格 ↓'
-    return '按价格排序'
-  })
+  function toggleDateSort() {
+    dateSortOrder.value = toggleDateSortUtil(dateSortOrder.value)
+  }
+
+  const priceSortButtonText = computed(() => getPriceSortButtonText(priceSortOrder.value))
+  const dateSortButtonText = computed(() => getDateSortButtonText(dateSortOrder.value))
 
   const dateRangeValue = computed({
     get: (): [string, string] | null => {
@@ -111,6 +115,7 @@ export function useBookFilters(sourceRecords: Ref<BookRecord[]>): UseBookFilters
     searchKeyword.value = ''
     selectedCondition.value = ''
     dateRange.value = { start: null, end: null }
+    dateSortOrder.value = ''
     priceSortOrder.value = ''
   }
 
@@ -118,11 +123,14 @@ export function useBookFilters(sourceRecords: Ref<BookRecord[]>): UseBookFilters
     searchKeyword,
     selectedCondition,
     dateRange,
+    dateSortOrder,
     priceSortOrder,
     filteredRecords,
-    sortButtonText,
+    priceSortButtonText,
+    dateSortButtonText,
     dateRangeValue,
     togglePriceSort,
+    toggleDateSort,
     resetFilters,
   }
 }

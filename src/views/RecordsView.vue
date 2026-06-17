@@ -35,10 +35,13 @@ const {
   searchKeyword,
   selectedCondition,
   priceSortOrder,
+  dateSortOrder,
   filteredRecords: displayRecords,
-  sortButtonText,
+  priceSortButtonText,
+  dateSortButtonText,
   dateRangeValue,
   togglePriceSort,
+  toggleDateSort,
   resetFilters,
 } = useBookFilters(toRef(store, 'records'))
 
@@ -260,8 +263,11 @@ function handleImportConfirm() {
         >
           批量删除{{ selectedRows.length > 0 ? ` (${selectedRows.length})` : '' }}
         </el-button>
+        <el-button :type="dateSortOrder ? 'primary' : 'default'" @click="toggleDateSort">
+          {{ dateSortButtonText }}
+        </el-button>
         <el-button :type="priceSortOrder ? 'primary' : 'default'" @click="togglePriceSort">
-          {{ sortButtonText }}
+          {{ priceSortButtonText }}
         </el-button>
         <el-button @click="handleExport">导出备份</el-button>
         <el-button type="primary" @click="handleImportClick">导入恢复</el-button>
