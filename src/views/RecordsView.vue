@@ -234,7 +234,7 @@ function handleImportConfirm() {
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column prop="purchaseChannel" label="购书渠道" width="120" align="center">
+      <el-table-column prop="purchaseChannel" label="购入渠道" width="120" align="center">
         <template #default="{ row }">
           {{ row.purchaseChannel || '未填写' }}
         </template>

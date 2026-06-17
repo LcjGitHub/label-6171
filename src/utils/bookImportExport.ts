@@ -1,4 +1,5 @@
 import type { BookRecord } from '@/types/book'
+import { PURCHASE_CHANNEL_OPTIONS } from '@/types/book'
 
 /** 导出数据格式版本 */
 export const EXPORT_FORMAT_VERSION = 1
@@ -140,6 +141,12 @@ function validateSingleRecord(record: unknown, index: number): string[] {
 
   if (r.price === undefined || r.price === null || isNaN(Number(r.price)) || Number(r.price) < 0) {
     errors.push(`第 ${index + 1} 条记录的购入价无效`)
+  }
+
+  if (r.purchaseChannel !== undefined && r.purchaseChannel !== null) {
+    if (typeof r.purchaseChannel !== 'string' || !PURCHASE_CHANNEL_OPTIONS.includes(r.purchaseChannel as any)) {
+      errors.push(`第 ${index + 1} 条记录的购入渠道无效：${r.purchaseChannel}`)
+    }
   }
 
   return errors

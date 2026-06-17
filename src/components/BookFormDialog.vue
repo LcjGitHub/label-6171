@@ -115,8 +115,8 @@ async function handleSubmit() {
           />
         </el-select>
       </el-form-item>
-      <el-form-item label="购书渠道" prop="purchaseChannel">
-        <el-select v-model="form.purchaseChannel" placeholder="请选择购书渠道" style="width: 100%" clearable>
+      <el-form-item label="购入渠道" prop="purchaseChannel">
+        <el-select v-model="form.purchaseChannel" placeholder="请选择购入渠道" style="width: 100%" clearable>
           <el-option
             v-for="item in PURCHASE_CHANNEL_OPTIONS"
             :key="item"
