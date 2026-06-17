@@ -254,7 +254,7 @@ function handleImportConfirm() {
 
     <ImportConfirmDialog
       v-model:visible="importDialogVisible"
-      v-model:import-mode="importMode"
+      :import-mode="importMode"
       :total-count="importStats.total"
       :added-count="importStats.added"
       :updated-count="importStats.updated"

@@ -31,7 +31,12 @@ function handleConfirm() {
   handleClose()
 }
 
-const hasChanges = computed(() => props.addedCount > 0 || props.updatedCount > 0)
+const canConfirm = computed(() => {
+  if (props.importMode === 'overwrite') {
+    return props.totalCount > 0
+  }
+  return props.totalCount > 0
+})
 </script>
 
 <template>
@@ -69,7 +74,7 @@ const hasChanges = computed(() => props.addedCount > 0 || props.updatedCount > 0
 
       <div class="mode-section">
         <h4>选择导入方式</h4>
-        <el-radio-group v-model="importMode" @update:model-value="emit('update:importMode', $event)">
+        <el-radio-group :model-value="importMode" @update:model-value="emit('update:importMode', $event)">
           <el-radio
             v-for="option in modeOptions"
             :key="option.value"
@@ -96,7 +101,7 @@ const hasChanges = computed(() => props.addedCount > 0 || props.updatedCount > 0
 
     <template #footer>
       <el-button @click="handleClose">取消</el-button>
-      <el-button type="primary" :disabled="!hasChanges" @click="handleConfirm">
+      <el-button type="primary" :disabled="!canConfirm" @click="handleConfirm">
         确认导入
       </el-button>
     </template>
