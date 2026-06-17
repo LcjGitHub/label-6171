@@ -13,7 +13,7 @@ const router = createRouter({
       path: '/stats',
       name: 'stats',
       component: () => import('@/views/StatsView.vue'),
-      meta: { title: '统计分析' },
+      meta: { title: '淘书统计' },
     },
     {
       path: '/inspiration',

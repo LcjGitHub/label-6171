@@ -16,10 +16,11 @@ const pageTitle = computed(() => (route.meta.title as string) ?? '二手书淘�
           :default-active="route.path"
           mode="horizontal"
           router
+          :ellipsis="false"
           class="nav-menu"
         >
           <el-menu-item index="/">我的记录</el-menu-item>
-          <el-menu-item index="/stats">统计分析</el-menu-item>
+          <el-menu-item index="/stats">淘书统计</el-menu-item>
           <el-menu-item index="/inspiration">灵感库</el-menu-item>
         </el-menu>
       </div>
@@ -61,8 +62,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 12px;
+  flex-wrap: nowrap;
+  gap: 16px;
   padding: 12px 0;
 }
 
@@ -75,6 +76,8 @@ body {
 .nav-menu {
   border-bottom: none !important;
   background: transparent !important;
+  flex-shrink: 0;
+  min-width: 320px;
 }
 
 .app-main {
