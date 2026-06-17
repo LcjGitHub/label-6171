@@ -1,6 +1,9 @@
 /** 书籍品相 */
 export type BookCondition = '全新' | '良好' | '一般'
 
+/** 购书渠道 */
+export type PurchaseChannel = '孔夫子旧书网' | '多抓鱼' | '线下书店' | '其他'
+
 /** 用户淘书记录 */
 export interface BookRecord {
   id: string
@@ -10,6 +13,7 @@ export interface BookRecord {
   condition: BookCondition
   note: string
   date: string
+  purchaseChannel?: PurchaseChannel
 }
 
 /** 灵感书单条目 */
@@ -26,6 +30,9 @@ export type BookRecordForm = Omit<BookRecord, 'id'>
 
 /** 品相选项 */
 export const CONDITION_OPTIONS: BookCondition[] = ['全新', '良好', '一般']
+
+/** 购书渠道选项 */
+export const PURCHASE_CHANNEL_OPTIONS: PurchaseChannel[] = ['孔夫子旧书网', '多抓鱼', '线下书店', '其他']
 
 /** 购书心愿条目 */
 export interface BookWish {

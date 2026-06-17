@@ -2,8 +2,8 @@
 import { reactive, ref, watch } from 'vue'
 import dayjs from 'dayjs'
 import type { FormInstance, FormRules } from 'element-plus'
-import type { BookRecord, BookRecordForm, BookCondition } from '@/types/book'
-import { CONDITION_OPTIONS } from '@/types/book'
+import type { BookRecord, BookRecordForm, BookCondition, PurchaseChannel } from '@/types/book'
+import { CONDITION_OPTIONS, PURCHASE_CHANNEL_OPTIONS } from '@/types/book'
 
 const props = defineProps<{
   visible: boolean
@@ -22,6 +22,7 @@ const defaultForm = (): BookRecordForm => ({
   condition: '良好' as BookCondition,
   note: '',
   date: dayjs().format('YYYY-MM-DD'),
+  purchaseChannel: undefined as PurchaseChannel | undefined,
 })
 
 const form = reactive<BookRecordForm>(defaultForm())
@@ -56,6 +57,7 @@ watch(
         condition: props.record.condition,
         note: props.record.note,
         date: props.record.date,
+        purchaseChannel: props.record.purchaseChannel,
       })
     } else if (val) {
       resetForm()
@@ -107,6 +109,16 @@ async function handleSubmit() {
         <el-select v-model="form.condition" placeholder="请选择品相" style="width: 100%">
           <el-option
             v-for="item in CONDITION_OPTIONS"
+            :key="item"
+            :label="item"
+            :value="item"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="购书渠道" prop="purchaseChannel">
+        <el-select v-model="form.purchaseChannel" placeholder="请选择购书渠道" style="width: 100%" clearable>
+          <el-option
+            v-for="item in PURCHASE_CHANNEL_OPTIONS"
             :key="item"
             :label="item"
             :value="item"
