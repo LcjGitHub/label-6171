@@ -42,6 +42,10 @@ export const useBookRecordStore = defineStore(
       records.value = records.value.filter((r) => r.id !== id)
     }
 
+    /**
+     * 批量删除记录
+     * @param ids - 要删除的记录 ID 数组
+     */
     function batchRemoveRecords(ids: string[]) {
       const idSet = new Set(ids)
       records.value = records.value.filter((r) => !idSet.has(r.id))

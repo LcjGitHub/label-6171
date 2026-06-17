@@ -226,12 +226,12 @@ function handleImportConfirm() {
           v-model="searchKeyword"
           placeholder="按书名搜索..."
           clearable
-          style="width: 180px"
+          style="width: 150px"
         />
         <el-select
           v-model="selectedCondition"
           placeholder="品相筛选"
-          style="width: 120px"
+          style="width: 100px"
         >
           <el-option
             v-for="condition in conditionOptions"
@@ -248,7 +248,7 @@ function handleImportConfirm() {
           end-placeholder="结束日期"
           value-format="YYYY-MM-DD"
           teleported
-          style="width: 260px"
+          style="width: 220px"
         />
         <el-button @click="resetFilters">重置筛选</el-button>
       </div>
@@ -343,20 +343,21 @@ function handleImportConfirm() {
   align-items: center;
   margin-bottom: 16px;
   gap: 12px;
-  flex-wrap: nowrap;
+  row-gap: 10px;
+  flex-wrap: wrap;
 }
 
 .toolbar-filters {
   display: flex;
   align-items: center;
   gap: 8px;
-  flex-shrink: 0;
+  flex-wrap: wrap;
 }
 
 .toolbar-actions {
   display: flex;
   gap: 8px;
-  flex-shrink: 0;
+  flex-wrap: wrap;
   margin-left: auto;
 }
 </style>
