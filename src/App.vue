@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
+import { useBookRecordStore } from '@/stores/bookRecord'
 
 const route = useRoute()
+const bookRecordStore = useBookRecordStore()
 
 const pageTitle = computed(() => (route.meta.title as string) ?? '二手书淘书个人日志')
 </script>
@@ -19,7 +21,11 @@ const pageTitle = computed(() => (route.meta.title as string) ?? '二手书淘�
           :ellipsis="false"
           class="nav-menu"
         >
-          <el-menu-item index="/">我的记录</el-menu-item>
+          <el-menu-item index="/">
+            <el-badge :value="bookRecordStore.recordCount" :max="999" class="nav-badge">
+              我的记录
+            </el-badge>
+          </el-menu-item>
           <el-menu-item index="/wishlist">心愿单</el-menu-item>
           <el-menu-item index="/stats">淘书统计</el-menu-item>
           <el-menu-item index="/monthly-review">月度购书回顾</el-menu-item>
@@ -80,6 +86,11 @@ body {
   background: transparent !important;
   flex-shrink: 0;
   min-width: 440px;
+}
+
+.nav-badge {
+  display: inline-flex;
+  align-items: center;
 }
 
 .app-main {

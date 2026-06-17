@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import type { BookRecord, BookRecordForm } from '@/types/book'
 
 /**
@@ -9,6 +9,8 @@ export const useBookRecordStore = defineStore(
   'bookRecord',
   () => {
     const records = ref<BookRecord[]>([])
+
+    const recordCount = computed(() => records.value.length)
 
     /**
      * 新增记录
@@ -69,6 +71,7 @@ export const useBookRecordStore = defineStore(
 
     return {
       records,
+      recordCount,
       addRecord,
       updateRecord,
       removeRecord,
