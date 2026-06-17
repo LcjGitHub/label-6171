@@ -31,7 +31,7 @@ const router = createRouter({
       path: '/monthly-review',
       name: 'monthly-review',
       component: () => import('@/views/MonthlyReviewView.vue'),
-      meta: { title: '月度回顾' },
+      meta: { title: '月度购书回顾' },
     },
   ],
 })

@@ -64,7 +64,7 @@ function handleMonthChange(activeNames: string | string[]) {
     <el-card shadow="never" class="review-card">
       <template #header>
         <div class="card-header">
-          <span>🗓️ 月度回顾</span>
+          <span>🗓️ 月度购书回顾</span>
         </div>
       </template>
       <el-empty v-if="monthlyGroups.length === 0" description="暂无购书记录，快去添加你的第一条淘书记录吧～" />
@@ -87,21 +87,21 @@ function handleMonthChange(activeNames: string | string[]) {
             <el-table-column prop="date" label="日期" width="110" />
             <el-table-column prop="title" label="书名" min-width="140" />
             <el-table-column prop="author" label="作者" min-width="100" />
-            <el-table-column prop="price" label="价格（元）" width="110" align="right">
+            <el-table-column prop="price" label="购入价（元）" width="120" align="right">
               <template #default="{ row }">
                 ¥{{ row.price.toFixed(2) }}
               </template>
             </el-table-column>
-            <el-table-column prop="condition" label="品相" width="80" align="center">
+            <el-table-column prop="condition" label="品相" width="90" align="center">
               <template #default="{ row }">
                 <el-tag :type="conditionTagType(row.condition)" size="small">
                   {{ row.condition }}
                 </el-tag>
               </template>
             </el-table-column>
-            <el-table-column prop="purchaseChannel" label="渠道" width="110" align="center">
+            <el-table-column prop="purchaseChannel" label="购入渠道" width="120" align="center">
               <template #default="{ row }">
-                {{ row.purchaseChannel || '—' }}
+                {{ row.purchaseChannel || '未填写' }}
               </template>
             </el-table-column>
             <el-table-column prop="note" label="备注" min-width="120" show-overflow-tooltip />
