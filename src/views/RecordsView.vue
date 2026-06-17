@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, toRef } from 'vue'
+import { ref, onMounted, toRef } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useBookRecordStore } from '@/stores/bookRecord'
@@ -34,10 +34,10 @@ function clearPrefillQuery() {
 const {
   searchKeyword,
   selectedCondition,
-  dateRange,
   priceSortOrder,
   filteredRecords: displayRecords,
   sortButtonText,
+  dateRangeValue,
   togglePriceSort,
   resetFilters,
 } = useBookFilters(toRef(store, 'records'))
@@ -48,21 +48,6 @@ function formatConditionLabel(condition: BookCondition | ''): string {
   if (condition === '') return '全部品相'
   return condition
 }
-
-function handleDateChange(value: [string, string] | null) {
-  if (value && value.length === 2) {
-    dateRange.value = { start: value[0], end: value[1] }
-  } else {
-    dateRange.value = { start: null, end: null }
-  }
-}
-
-const dateRangeValue = computed<[string, string] | null>(() => {
-  if (dateRange.value.start && dateRange.value.end) {
-    return [dateRange.value.start, dateRange.value.end]
-  }
-  return null
-})
 
 const dialogVisible = ref(false)
 const editingRecord = ref<BookRecord | null>(null)
@@ -219,12 +204,12 @@ function handleImportConfirm() {
           v-model="searchKeyword"
           placeholder="按书名搜索..."
           clearable
-          style="width: 200px"
+          style="width: 180px"
         />
         <el-select
           v-model="selectedCondition"
           placeholder="品相筛选"
-          style="width: 140px"
+          style="width: 120px"
         >
           <el-option
             v-for="condition in conditionOptions"
@@ -240,8 +225,8 @@ function handleImportConfirm() {
           start-placeholder="开始日期"
           end-placeholder="结束日期"
           value-format="YYYY-MM-DD"
-          style="width: 280px"
-          @change="handleDateChange"
+          teleported
+          style="width: 260px"
         />
         <el-button @click="resetFilters">重置筛选</el-button>
       </div>
@@ -262,7 +247,7 @@ function handleImportConfirm() {
       />
     </div>
 
-    <el-table :data="displayRecords" stripe border style="width: 100%">
+    <el-table v-if="displayRecords.length > 0" :data="displayRecords" stripe border style="width: 100%">
       <el-table-column prop="title" label="书名" min-width="140" />
       <el-table-column prop="author" label="作者" min-width="100" />
       <el-table-column prop="price" label="购入价（元）" width="120" align="right">
@@ -292,7 +277,7 @@ function handleImportConfirm() {
       </el-table-column>
     </el-table>
 
-    <el-empty v-if="displayRecords.length === 0" description="暂无记录，点击「新增记录」开始吧" />
+    <el-empty v-else description="暂无匹配记录" />
 
     <BookFormDialog
       v-model:visible="dialogVisible"
@@ -320,26 +305,28 @@ function handleImportConfirm() {
   border-radius: 8px;
   padding: 20px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  overflow: visible;
 }
 
 .toolbar {
   display: flex;
-  justify-content: space-between;
   align-items: center;
   margin-bottom: 16px;
-  flex-wrap: wrap;
   gap: 12px;
+  flex-wrap: nowrap;
 }
 
 .toolbar-filters {
   display: flex;
   align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
 .toolbar-actions {
   display: flex;
   gap: 8px;
+  flex-shrink: 0;
+  margin-left: auto;
 }
 </style>

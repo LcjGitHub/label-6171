@@ -23,6 +23,7 @@ export interface FilterActions {
 export interface FilterComputed {
   filteredRecords: ComputedRef<BookRecord[]>
   sortButtonText: ComputedRef<string>
+  dateRangeValue: ComputedRef<[string, string] | null>
 }
 
 export type UseBookFiltersReturn = FilterState & FilterActions & FilterComputed
@@ -90,6 +91,22 @@ export function useBookFilters(sourceRecords: Ref<BookRecord[]>): UseBookFilters
     return '按价格排序'
   })
 
+  const dateRangeValue = computed({
+    get: (): [string, string] | null => {
+      if (dateRange.value.start && dateRange.value.end) {
+        return [dateRange.value.start, dateRange.value.end]
+      }
+      return null
+    },
+    set: (val: [string, string] | null) => {
+      if (val && val.length === 2) {
+        dateRange.value = { start: val[0], end: val[1] }
+      } else {
+        dateRange.value = { start: null, end: null }
+      }
+    },
+  })
+
   function resetFilters() {
     searchKeyword.value = ''
     selectedCondition.value = ''
@@ -104,6 +121,7 @@ export function useBookFilters(sourceRecords: Ref<BookRecord[]>): UseBookFilters
     priceSortOrder,
     filteredRecords,
     sortButtonText,
+    dateRangeValue,
     togglePriceSort,
     resetFilters,
   }
