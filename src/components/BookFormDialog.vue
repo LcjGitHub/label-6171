@@ -8,6 +8,7 @@ import { CONDITION_OPTIONS, PURCHASE_CHANNEL_OPTIONS } from '@/types/book'
 const props = defineProps<{
   visible: boolean
   record?: BookRecord | null
+  initialValues?: Partial<BookRecordForm>
 }>()
 
 const emit = defineEmits<{
@@ -61,6 +62,9 @@ watch(
       })
     } else if (val) {
       resetForm()
+      if (props.initialValues) {
+        Object.assign(form, props.initialValues)
+      }
     }
   }
 )

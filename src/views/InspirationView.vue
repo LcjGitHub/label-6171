@@ -1,8 +1,20 @@
 <script setup lang="ts">
+import { useRouter } from 'vue-router'
 import inspirationData from '@/mock/book-inspiration.json'
 import type { InspirationBook } from '@/types/book'
 
 const books = inspirationData as InspirationBook[]
+const router = useRouter()
+
+function addToRecord(book: InspirationBook) {
+  router.push({
+    name: 'records',
+    query: {
+      title: book.title,
+      author: book.author,
+    },
+  })
+}
 </script>
 
 <template>
@@ -37,6 +49,9 @@ const books = inspirationData as InspirationBook[]
             >
               {{ tag }}
             </el-tag>
+          </div>
+          <div class="card-footer">
+            <el-button type="primary" size="small" @click="addToRecord(book)">加入记录</el-button>
           </div>
         </el-card>
       </el-col>
@@ -102,5 +117,10 @@ const books = inspirationData as InspirationBook[]
 
 .tag-item {
   margin: 0;
+}
+
+.card-footer {
+  margin-top: 12px;
+  text-align: right;
 }
 </style>

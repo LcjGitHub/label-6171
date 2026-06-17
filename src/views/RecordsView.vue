@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import Fuse from 'fuse.js'
+import { useRoute } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useBookRecordStore } from '@/stores/bookRecord'
 import BookFormDialog from '@/components/BookFormDialog.vue'
@@ -16,11 +17,13 @@ import {
 } from '@/utils/bookImportExport'
 
 const store = useBookRecordStore()
+const route = useRoute()
 
 const searchKeyword = ref('')
 const priceSortOrder = ref<'asc' | 'desc' | ''>('')
 const dialogVisible = ref(false)
 const editingRecord = ref<BookRecord | null>(null)
+const initialFormValues = ref<Partial<BookRecordForm> | undefined>(undefined)
 
 const importDialogVisible = ref(false)
 const importMode = ref<ImportMode>('merge')
@@ -75,8 +78,22 @@ const sortButtonText = computed(() => {
 /** 打开新增弹窗 */
 function openAddDialog() {
   editingRecord.value = null
+  initialFormValues.value = undefined
   dialogVisible.value = true
 }
+
+onMounted(() => {
+  const title = route.query.title as string | undefined
+  const author = route.query.author as string | undefined
+  if (title || author) {
+    editingRecord.value = null
+    initialFormValues.value = {
+      ...(title ? { title } : {}),
+      ...(author ? { author } : {}),
+    }
+    dialogVisible.value = true
+  }
+})
 
 /** 打开编辑弹窗 */
 function openEditDialog(record: BookRecord) {
@@ -254,6 +271,7 @@ function handleImportConfirm() {
     <BookFormDialog
       v-model:visible="dialogVisible"
       :record="editingRecord"
+      :initial-values="initialFormValues"
       @submit="handleSubmit"
     />
 
