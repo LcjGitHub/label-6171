@@ -42,6 +42,11 @@ export const useBookRecordStore = defineStore(
       records.value = records.value.filter((r) => r.id !== id)
     }
 
+    function batchRemoveRecords(ids: string[]) {
+      const idSet = new Set(ids)
+      records.value = records.value.filter((r) => !idSet.has(r.id))
+    }
+
     /**
      * 根据 ID 获取记录
      * @param id - 记录 ID
@@ -63,6 +68,7 @@ export const useBookRecordStore = defineStore(
       addRecord,
       updateRecord,
       removeRecord,
+      batchRemoveRecords,
       getRecordById,
       setRecords,
     }

@@ -49,6 +49,28 @@ function formatConditionLabel(condition: BookCondition | ''): string {
   return condition
 }
 
+const selectedRows = ref<BookRecord[]>([])
+
+function handleSelectionChange(rows: BookRecord[]) {
+  selectedRows.value = rows
+}
+
+async function handleBatchDelete() {
+  if (selectedRows.value.length === 0) return
+  try {
+    await ElMessageBox.confirm(
+      `确定删除选中的 ${selectedRows.value.length} 条记录吗？`,
+      '批量删除',
+      { type: 'warning' }
+    )
+    store.batchRemoveRecords(selectedRows.value.map((r) => r.id))
+    selectedRows.value = []
+    ElMessage.success('已批量删除选中记录')
+  } catch {
+    /* 用户取消 */
+  }
+}
+
 const dialogVisible = ref(false)
 const editingRecord = ref<BookRecord | null>(null)
 const initialFormValues = ref<Partial<BookRecordForm> | undefined>(undefined)
@@ -231,6 +253,13 @@ function handleImportConfirm() {
         <el-button @click="resetFilters">重置筛选</el-button>
       </div>
       <div class="toolbar-actions">
+        <el-button
+          type="danger"
+          :disabled="selectedRows.length === 0"
+          @click="handleBatchDelete"
+        >
+          批量删除{{ selectedRows.length > 0 ? ` (${selectedRows.length})` : '' }}
+        </el-button>
         <el-button :type="priceSortOrder ? 'primary' : 'default'" @click="togglePriceSort">
           {{ sortButtonText }}
         </el-button>
@@ -247,7 +276,8 @@ function handleImportConfirm() {
       />
     </div>
 
-    <el-table v-if="displayRecords.length > 0" :data="displayRecords" stripe border style="width: 100%">
+    <el-table v-if="displayRecords.length > 0" :data="displayRecords" stripe border style="width: 100%" @selection-change="handleSelectionChange">
+      <el-table-column type="selection" width="45" />
       <el-table-column prop="title" label="书名" min-width="140" />
       <el-table-column prop="author" label="作者" min-width="100" />
       <el-table-column prop="price" label="购入价（元）" width="120" align="right">
