@@ -27,7 +27,19 @@ const formRef = ref<FormInstance>()
 const rules: FormRules = {
   title: [{ required: true, message: '请输入书名', trigger: 'blur' }],
   author: [{ required: true, message: '请输入作者', trigger: 'blur' }],
-  maxPrice: [{ required: true, message: '请输入期望最高价', trigger: 'blur' }],
+  maxPrice: [
+    { required: true, message: '请输入期望最高价', trigger: 'blur' },
+    {
+      validator: (_rule, value, callback) => {
+        if (value <= 0) {
+          callback(new Error('期望最高价必须大于 0'))
+        } else {
+          callback()
+        }
+      },
+      trigger: 'blur',
+    },
+  ],
 }
 
 const dialogTitle = () => (props.wish ? '编辑心愿' : '新增心愿')
@@ -84,7 +96,7 @@ async function handleSubmit() {
       <el-form-item label="期望最高价" prop="maxPrice">
         <el-input-number
           v-model="form.maxPrice"
-          :min="0"
+          :min="0.01"
           :precision="2"
           :step="1"
           style="width: 100%"
