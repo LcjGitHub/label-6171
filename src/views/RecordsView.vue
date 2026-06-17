@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import Fuse from 'fuse.js'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useBookRecordStore } from '@/stores/bookRecord'
 import BookFormDialog from '@/components/BookFormDialog.vue'
@@ -18,6 +18,17 @@ import {
 
 const store = useBookRecordStore()
 const route = useRoute()
+const router = useRouter()
+
+/** 清除地址栏中的预填查询参数 */
+function clearPrefillQuery() {
+  if (route.query.title || route.query.author) {
+    router.replace({
+      name: 'records',
+      query: {},
+    })
+  }
+}
 
 const searchKeyword = ref('')
 const priceSortOrder = ref<'asc' | 'desc' | ''>('')
@@ -92,6 +103,7 @@ onMounted(() => {
       ...(author ? { author } : {}),
     }
     dialogVisible.value = true
+    clearPrefillQuery()
   }
 })
 
@@ -110,6 +122,7 @@ function handleSubmit(form: BookRecordForm) {
     store.addRecord(form)
     ElMessage.success('记录已添加')
   }
+  clearPrefillQuery()
 }
 
 /** 删除记录 */

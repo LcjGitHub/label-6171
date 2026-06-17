@@ -37,18 +37,20 @@ function addToRecord(book: InspirationBook) {
               <span class="book-title">{{ book.title }}</span>
             </div>
           </template>
-          <p class="book-author">{{ book.author }}</p>
-          <p class="book-desc">{{ book.description }}</p>
-          <div class="book-tags">
-            <el-tag
-              v-for="tag in book.tags"
-              :key="tag"
-              size="small"
-              type="info"
-              class="tag-item"
-            >
-              {{ tag }}
-            </el-tag>
+          <div class="card-content">
+            <p class="book-author">{{ book.author }}</p>
+            <p class="book-desc">{{ book.description }}</p>
+            <div class="book-tags">
+              <el-tag
+                v-for="tag in book.tags"
+                :key="tag"
+                size="small"
+                type="info"
+                class="tag-item"
+              >
+                {{ tag }}
+              </el-tag>
+            </div>
           </div>
           <div class="card-footer">
             <el-button type="primary" size="small" @click="addToRecord(book)">加入记录</el-button>
@@ -79,6 +81,31 @@ function addToRecord(book: InspirationBook) {
 
 .book-card {
   height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.book-card :deep(.el-card__body) {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.book-card :deep(.el-card__header) {
+  flex-shrink: 0;
+}
+
+.card-content {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 12px;
+  min-height: 0;
+}
+
+.card-footer {
+  flex-shrink: 0;
+  text-align: right;
 }
 
 .card-header {
@@ -117,10 +144,5 @@ function addToRecord(book: InspirationBook) {
 
 .tag-item {
   margin: 0;
-}
-
-.card-footer {
-  margin-top: 12px;
-  text-align: right;
 }
 </style>
