@@ -27,6 +27,12 @@ const router = createRouter({
       component: () => import('@/views/WishlistView.vue'),
       meta: { title: '心愿单' },
     },
+    {
+      path: '/monthly-review',
+      name: 'monthly-review',
+      component: () => import('@/views/MonthlyReviewView.vue'),
+      meta: { title: '月度回顾' },
+    },
   ],
 })
 
