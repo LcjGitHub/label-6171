@@ -22,9 +22,13 @@ const pageTitle = computed(() => (route.meta.title as string) ?? '二手书淘�
           class="nav-menu"
         >
           <el-menu-item index="/">
-            <el-badge :value="bookRecordStore.recordCount" :max="999" class="nav-badge">
-              我的记录
-            </el-badge>
+            <span class="nav-item-text">我的记录</span>
+            <el-badge
+              :value="bookRecordStore.recordCount"
+              :max="999"
+              :hidden="bookRecordStore.recordCount === 0"
+              class="nav-badge"
+            />
           </el-menu-item>
           <el-menu-item index="/wishlist">心愿单</el-menu-item>
           <el-menu-item index="/stats">淘书统计</el-menu-item>
@@ -88,9 +92,22 @@ body {
   min-width: 440px;
 }
 
+.nav-item-text {
+  margin-right: 4px;
+}
+
 .nav-badge {
+  position: static;
+  transform: none;
   display: inline-flex;
-  align-items: center;
+  vertical-align: middle;
+  margin-left: 2px;
+}
+
+.nav-badge :deep(.el-badge__content) {
+  position: static;
+  transform: none;
+  display: inline-flex;
 }
 
 .app-main {

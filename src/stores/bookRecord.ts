@@ -10,6 +10,9 @@ export const useBookRecordStore = defineStore(
   () => {
     const records = ref<BookRecord[]>([])
 
+    /**
+     * 记录总数
+     */
     const recordCount = computed(() => records.value.length)
 
     /**
