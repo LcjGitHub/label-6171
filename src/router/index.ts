@@ -10,6 +10,12 @@ const router = createRouter({
       meta: { title: '我的记录' },
     },
     {
+      path: '/stats',
+      name: 'stats',
+      component: () => import('@/views/StatsView.vue'),
+      meta: { title: '统计分析' },
+    },
+    {
       path: '/inspiration',
       name: 'inspiration',
       component: () => import('@/views/InspirationView.vue'),
