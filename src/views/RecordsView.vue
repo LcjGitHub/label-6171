@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import Fuse from 'fuse.js'
+import { ref, computed, onMounted, toRef } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useBookRecordStore } from '@/stores/bookRecord'
 import BookFormDialog from '@/components/BookFormDialog.vue'
 import ImportConfirmDialog from '@/components/ImportConfirmDialog.vue'
-import type { BookRecord, BookRecordForm } from '@/types/book'
+import type { BookRecord, BookRecordForm, BookCondition } from '@/types/book'
+import { CONDITION_OPTIONS } from '@/types/book'
+import { useBookFilters } from '@/composables/useBookFilters'
 import {
   exportRecords,
   readExportFile,
@@ -30,8 +31,39 @@ function clearPrefillQuery() {
   }
 }
 
-const searchKeyword = ref('')
-const priceSortOrder = ref<'asc' | 'desc' | ''>('')
+const {
+  searchKeyword,
+  selectedCondition,
+  dateRange,
+  priceSortOrder,
+  filteredRecords: displayRecords,
+  sortButtonText,
+  togglePriceSort,
+  resetFilters,
+} = useBookFilters(toRef(store, 'records'))
+
+const conditionOptions: (BookCondition | '')[] = ['', ...CONDITION_OPTIONS]
+
+function formatConditionLabel(condition: BookCondition | ''): string {
+  if (condition === '') return '全部品相'
+  return condition
+}
+
+function handleDateChange(value: [string, string] | null) {
+  if (value && value.length === 2) {
+    dateRange.value = { start: value[0], end: value[1] }
+  } else {
+    dateRange.value = { start: null, end: null }
+  }
+}
+
+const dateRangeValue = computed<[string, string] | null>(() => {
+  if (dateRange.value.start && dateRange.value.end) {
+    return [dateRange.value.start, dateRange.value.end]
+  }
+  return null
+})
+
 const dialogVisible = ref(false)
 const editingRecord = ref<BookRecord | null>(null)
 const initialFormValues = ref<Partial<BookRecordForm> | undefined>(undefined)
@@ -41,50 +73,6 @@ const importMode = ref<ImportMode>('merge')
 const pendingImportRecords = ref<BookRecord[]>([])
 const importStats = ref({ total: 0, added: 0, updated: 0, unchanged: 0 })
 const fileInputRef = ref<HTMLInputElement | null>(null)
-
-/** fuse.js 搜索实例 */
-const fuse = computed(
-  () =>
-    new Fuse(store.records, {
-      keys: ['title'],
-      threshold: 0.4,
-    })
-)
-
-/** 过滤并排序后的记录列表 */
-const displayRecords = computed(() => {
-  let list = [...store.records]
-
-  if (searchKeyword.value.trim()) {
-    list = fuse.value.search(searchKeyword.value.trim()).map((r) => r.item)
-  }
-
-  if (priceSortOrder.value) {
-    list.sort((a, b) =>
-      priceSortOrder.value === 'asc' ? a.price - b.price : b.price - a.price
-    )
-  }
-
-  return list
-})
-
-/** 切换价格排序 */
-function togglePriceSort() {
-  if (priceSortOrder.value === '') {
-    priceSortOrder.value = 'asc'
-  } else if (priceSortOrder.value === 'asc') {
-    priceSortOrder.value = 'desc'
-  } else {
-    priceSortOrder.value = ''
-  }
-}
-
-/** 排序按钮文字 */
-const sortButtonText = computed(() => {
-  if (priceSortOrder.value === 'asc') return '价格 ↑'
-  if (priceSortOrder.value === 'desc') return '价格 ↓'
-  return '按价格排序'
-})
 
 /** 打开新增弹窗 */
 function openAddDialog() {
@@ -226,12 +214,37 @@ function handleImportConfirm() {
 <template>
   <div class="records-view">
     <div class="toolbar">
-      <el-input
-        v-model="searchKeyword"
-        placeholder="按书名搜索..."
-        clearable
-        style="width: 240px"
-      />
+      <div class="toolbar-filters">
+        <el-input
+          v-model="searchKeyword"
+          placeholder="按书名搜索..."
+          clearable
+          style="width: 200px"
+        />
+        <el-select
+          v-model="selectedCondition"
+          placeholder="品相筛选"
+          style="width: 140px"
+        >
+          <el-option
+            v-for="condition in conditionOptions"
+            :key="condition || 'all'"
+            :label="formatConditionLabel(condition)"
+            :value="condition"
+          />
+        </el-select>
+        <el-date-picker
+          v-model="dateRangeValue"
+          type="daterange"
+          range-separator="至"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+          value-format="YYYY-MM-DD"
+          style="width: 280px"
+          @change="handleDateChange"
+        />
+        <el-button @click="resetFilters">重置筛选</el-button>
+      </div>
       <div class="toolbar-actions">
         <el-button :type="priceSortOrder ? 'primary' : 'default'" @click="togglePriceSort">
           {{ sortButtonText }}
@@ -316,6 +329,13 @@ function handleImportConfirm() {
   margin-bottom: 16px;
   flex-wrap: wrap;
   gap: 12px;
+}
+
+.toolbar-filters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .toolbar-actions {
