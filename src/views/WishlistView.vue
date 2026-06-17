@@ -1,57 +1,26 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import Fuse from 'fuse.js'
+import { ref, toRef } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useBookWishlistStore } from '@/stores/bookWishlist'
 import BookWishDialog from '@/components/BookWishDialog.vue'
 import type { BookWish, BookWishForm } from '@/types/book'
+import { useBookSearchSort } from '@/composables/useBookSearchSort'
 
 const store = useBookWishlistStore()
 
-const searchKeyword = ref('')
-const priceSortOrder = ref<'asc' | 'desc' | ''>('')
+const {
+  searchKeyword,
+  priceSortOrder,
+  sortedItems: displayWishes,
+  priceSortButtonText: sortButtonText,
+  togglePriceSort,
+} = useBookSearchSort(toRef(store, 'wishes'), {
+  priceField: 'maxPrice',
+  priceSortLabel: '期望价格',
+})
+
 const dialogVisible = ref(false)
 const editingWish = ref<BookWish | null>(null)
-
-const fuse = computed(
-  () =>
-    new Fuse(store.wishes, {
-      keys: ['title'],
-      threshold: 0.4,
-    })
-)
-
-const displayWishes = computed(() => {
-  let list = [...store.wishes]
-
-  if (searchKeyword.value.trim()) {
-    list = fuse.value.search(searchKeyword.value.trim()).map((r) => r.item)
-  }
-
-  if (priceSortOrder.value) {
-    list.sort((a, b) =>
-      priceSortOrder.value === 'asc' ? a.maxPrice - b.maxPrice : b.maxPrice - a.maxPrice
-    )
-  }
-
-  return list
-})
-
-function togglePriceSort() {
-  if (priceSortOrder.value === '') {
-    priceSortOrder.value = 'asc'
-  } else if (priceSortOrder.value === 'asc') {
-    priceSortOrder.value = 'desc'
-  } else {
-    priceSortOrder.value = ''
-  }
-}
-
-const sortButtonText = computed(() => {
-  if (priceSortOrder.value === 'asc') return '期望价格 ↑'
-  if (priceSortOrder.value === 'desc') return '期望价格 ↓'
-  return '按期望价格排序'
-})
 
 function openAddDialog() {
   editingWish.value = null

@@ -1,16 +1,13 @@
 import { ref, computed, type Ref, type ComputedRef } from 'vue'
-import Fuse from 'fuse.js'
 import dayjs from 'dayjs'
 import type { BookRecord, BookCondition } from '@/types/book'
 import {
   sortRecords,
   toggleDateSort as toggleDateSortUtil,
-  togglePriceSort as togglePriceSortUtil,
   getDateSortButtonText,
-  getPriceSortButtonText,
   type DateSortOrder,
-  type PriceSortOrder,
 } from '@/utils/bookSort'
+import { useBookSearchSort, type PriceSortOrder } from '@/composables/useBookSearchSort'
 
 export interface DateRange {
   start: string | null
@@ -41,26 +38,24 @@ export interface FilterComputed {
 export type UseBookFiltersReturn = FilterState & FilterActions & FilterComputed
 
 export function useBookFilters(sourceRecords: Ref<BookRecord[]>): UseBookFiltersReturn {
-  const searchKeyword = ref('')
+  const {
+    searchKeyword,
+    priceSortOrder,
+    searchedItems,
+    priceSortButtonText,
+    togglePriceSort,
+    resetSearchSort,
+  } = useBookSearchSort(sourceRecords, {
+    priceField: 'price',
+    priceSortLabel: '价格',
+  })
+
   const selectedCondition = ref<BookCondition | ''>('')
   const dateRange = ref<DateRange>({ start: null, end: null })
   const dateSortOrder = ref<DateSortOrder>('')
-  const priceSortOrder = ref<PriceSortOrder>('')
-
-  const fuse = computed(
-    () =>
-      new Fuse(sourceRecords.value, {
-        keys: ['title'],
-        threshold: 0.4,
-      })
-  )
 
   const filteredRecords = computed(() => {
-    let list = [...sourceRecords.value]
-
-    if (searchKeyword.value.trim()) {
-      list = fuse.value.search(searchKeyword.value.trim()).map((r) => r.item)
-    }
+    let list = [...searchedItems.value]
 
     if (selectedCondition.value) {
       list = list.filter((r) => r.condition === selectedCondition.value)
@@ -84,15 +79,10 @@ export function useBookFilters(sourceRecords: Ref<BookRecord[]>): UseBookFilters
     return list
   })
 
-  function togglePriceSort() {
-    priceSortOrder.value = togglePriceSortUtil(priceSortOrder.value)
-  }
-
   function toggleDateSort() {
     dateSortOrder.value = toggleDateSortUtil(dateSortOrder.value)
   }
 
-  const priceSortButtonText = computed(() => getPriceSortButtonText(priceSortOrder.value))
   const dateSortButtonText = computed(() => getDateSortButtonText(dateSortOrder.value))
 
   const dateRangeValue = computed({
@@ -112,11 +102,10 @@ export function useBookFilters(sourceRecords: Ref<BookRecord[]>): UseBookFilters
   })
 
   function resetFilters() {
-    searchKeyword.value = ''
+    resetSearchSort()
     selectedCondition.value = ''
     dateRange.value = { start: null, end: null }
     dateSortOrder.value = ''
-    priceSortOrder.value = ''
   }
 
   return {
