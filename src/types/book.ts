@@ -26,3 +26,15 @@ export type BookRecordForm = Omit<BookRecord, 'id'>
 
 /** 品相选项 */
 export const CONDITION_OPTIONS: BookCondition[] = ['全新', '良好', '一般']
+
+/** 购书心愿条目 */
+export interface BookWish {
+  id: string
+  title: string
+  author: string
+  maxPrice: number
+  note: string
+}
+
+/** 心愿单表单数据（不含 id） */
+export type BookWishForm = Omit<BookWish, 'id'>

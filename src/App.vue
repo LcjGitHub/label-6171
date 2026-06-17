@@ -20,6 +20,7 @@ const pageTitle = computed(() => (route.meta.title as string) ?? '二手书淘�
           class="nav-menu"
         >
           <el-menu-item index="/">我的记录</el-menu-item>
+          <el-menu-item index="/wishlist">心愿单</el-menu-item>
           <el-menu-item index="/stats">淘书统计</el-menu-item>
           <el-menu-item index="/inspiration">灵感库</el-menu-item>
         </el-menu>

@@ -21,6 +21,12 @@ const router = createRouter({
       component: () => import('@/views/InspirationView.vue'),
       meta: { title: '灵感库' },
     },
+    {
+      path: '/wishlist',
+      name: 'wishlist',
+      component: () => import('@/views/WishlistView.vue'),
+      meta: { title: '心愿单' },
+    },
   ],
 })
 
