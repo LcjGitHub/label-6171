@@ -229,7 +229,7 @@ function handleImportConfirm() {
           v-model="searchKeyword"
           placeholder="按书名搜索..."
           clearable
-          style="width: 150px"
+          style="width: 130px"
         />
         <el-select
           v-model="selectedCondition"
@@ -251,8 +251,14 @@ function handleImportConfirm() {
           end-placeholder="结束日期"
           value-format="YYYY-MM-DD"
           teleported
-          style="width: 220px"
+          style="width: 200px"
         />
+        <el-button :type="dateSortOrder ? 'primary' : 'default'" @click="toggleDateSort">
+          {{ dateSortButtonText }}
+        </el-button>
+        <el-button :type="priceSortOrder ? 'primary' : 'default'" @click="togglePriceSort">
+          {{ priceSortButtonText }}
+        </el-button>
         <el-button @click="resetFilters">重置筛选</el-button>
       </div>
       <div class="toolbar-actions">
@@ -262,12 +268,6 @@ function handleImportConfirm() {
           @click="handleBatchDelete"
         >
           批量删除{{ selectedRows.length > 0 ? ` (${selectedRows.length})` : '' }}
-        </el-button>
-        <el-button :type="dateSortOrder ? 'primary' : 'default'" @click="toggleDateSort">
-          {{ dateSortButtonText }}
-        </el-button>
-        <el-button :type="priceSortOrder ? 'primary' : 'default'" @click="togglePriceSort">
-          {{ priceSortButtonText }}
         </el-button>
         <el-button @click="handleExport">导出备份</el-button>
         <el-button type="primary" @click="handleImportClick">导入恢复</el-button>
@@ -356,7 +356,7 @@ function handleImportConfirm() {
 .toolbar-filters {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
 }
 
